@@ -1,4 +1,5 @@
 import 'package:cadastro/pages/cadastro.dart';
+import 'package:cadastro/pages/lista.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -18,7 +19,7 @@ class _MaxiGestaoState extends State<MaxiGestao> {
       theme: ThemeData(
         primaryColor: Colors.red[900],
       ),
-      home: Cadastro(),
+      home: ListUsersPage(),
     );
   }
 }
