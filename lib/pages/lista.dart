@@ -10,48 +10,14 @@ class ListUsersPage extends StatefulWidget {
 }
 
 class _ListUsersPageState extends State<ListUsersPage> {
-  var users = <User>[
-    /*User(
-      name: 'Carlos Alexandre Heidrich',
-      document: '010.440.810-31',
-      age: 33,
-      email: 'karlusheidrich@gmail.com',
-      cep: '93.900-000',
-      endereco: 'Alameda dos Ipês',
-      numero: '149',
-      bairro: 'Jardim Panorâmico',
-      cidade: 'Ivoti',
-      uf: 'RS',
-      pais: 'Brasil',
-      active: true,
-    ),
-    User(
-      name: 'Samuel Eduardo Heidrich',
-      document: '051.490.520-06',
-      age: 4,
-      email: 'karlusheidrich@gmail.com',
-      cep: '93.900-000',
-      endereco: 'Alameda dos Ipês',
-      numero: '149',
-      bairro: 'Jardim Panorâmico',
-      cidade: 'Ivoti',
-      uf: 'RS',
-      pais: 'Brasil',
-      active: false,
-    ),*/
-  ];
-
+  List<User> users;
   var repository = UserRepository(DBSQLite());
+  Future<List<User>> getUsers;
 
   @override
   void initState() {
     super.initState();
-
-    repository.getUsers().then((value) {
-      setState(() {
-        users = value;
-      });
-    });
+    getUsers = repository.getUsers();
   }
 
   @override
@@ -60,51 +26,66 @@ class _ListUsersPageState extends State<ListUsersPage> {
       appBar: AppBar(
         title: Text('Lista de usuários'),
       ),
-      body: ListView.builder(
-        itemCount: users.length,
-        itemBuilder: (_, index) {
-          var user = users[index];
-          return ListTile(
-            leading: Icon(
-              user.active ? Icons.check_circle : Icons.highlight_off,
-              color: user.active ? Colors.green : Colors.red,
-            ),
-            title: Text(
-              '${user.name}, ${user.age} anos',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('CPF: ${user.document}'),
-                Text('E-Mail: ${user.email}'),
-              ],
-            ),
-            isThreeLine: true,
-            onTap: () async {
-              var userUpdated = await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => Cadastro(
-                    user: user,
+      body: FutureBuilder(
+        future: getUsers,
+        builder: (_, AsyncSnapshot<List<User>> snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          users = snapshot.data;
+          return ListView.builder(
+            itemCount: users.length,
+            itemBuilder: (_, index) {
+              var user = users[index];
+              return ListTile(
+                leading: Hero(
+                  tag: user.id.toString(),
+                  child: CircleAvatar(
+                    backgroundImage: user.image != null
+                        ? FileImage(user.image)
+                        : AssetImage('assets/user02.jpg'),
                   ),
                 ),
+                title: Text(
+                  '${user.name}, ${user.age} anos',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('CPF: ${user.document}'),
+                    Text('E-Mail: ${user.email}'),
+                  ],
+                ),
+                isThreeLine: true,
+                onTap: () async {
+                  var userUpdated = await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => Cadastro(
+                        user: user,
+                      ),
+                    ),
+                  );
+                  if (userUpdated != null) {
+                    setState(() {
+                      user = userUpdated;
+                    });
+                  }
+                },
+                onLongPress: () async {
+                  var deleted = await repository.deleteUser(user.id);
+                  if (deleted) {
+                    setState(() {
+                      users.removeAt(index);
+                    });
+                  }
+                },
               );
-              if (userUpdated != null) {
-                setState(() {
-                  user = userUpdated;
-                });
-              }
-            },
-            onLongPress: () async {
-              var deleted = await repository.deleteUser(user.id);
-              if (deleted) {
-                setState(() {
-                  users.removeAt(index);
-                });
-              }
             },
           );
         },

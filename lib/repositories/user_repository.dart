@@ -8,6 +8,7 @@ class UserRepository {
 
   Future<List<User>> getUsers() async {
     var instance = await _db.getInstance();
+    await Future.delayed(Duration(seconds: 2));
     var usersDB = await instance.query('users');
     var users = usersDB.map((user) => User.fromDB(user)).toList();
     return users;

@@ -1,4 +1,3 @@
-import 'package:cadastro/pages/cadastro.dart';
 import 'package:cadastro/pages/lista.dart';
 import 'package:flutter/material.dart';
 

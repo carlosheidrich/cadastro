@@ -1,3 +1,5 @@
+import 'dart:io';
+
 class User {
   int id;
   String name;
@@ -12,6 +14,7 @@ class User {
   String cidade;
   String uf;
   String pais;
+  File image;
 
   User(
       {this.id,
@@ -26,7 +29,8 @@ class User {
       this.bairro,
       this.cidade,
       this.uf,
-      this.pais});
+      this.pais,
+      this.image});
 
   Map<String, dynamic> toDB() {
     var userMap = {
@@ -42,7 +46,8 @@ class User {
       'bairro': this.bairro,
       'cidade': this.cidade,
       'uf': this.uf,
-      'pais': this.pais
+      'pais': this.pais,
+      'image': this.image?.path,
     };
     return userMap;
   }
@@ -61,6 +66,7 @@ class User {
         bairro: user['bairro'],
         cidade: user['cidade'],
         uf: user['uf'],
-        pais: user['pais']);
+        pais: user['pais'],
+        image: user['image'] != null ? File(user['image']) : null);
   }
 }

@@ -41,7 +41,8 @@ class DBSQLite {
             bairro TEXT,
             cidade TEXT,
             uf TEXT,
-            pais TEXT
+            pais TEXT,
+            image TEXT
           )        
         ''');
       },

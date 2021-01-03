@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:brasil_fields/brasil_fields.dart';
 import 'package:cadastro/infra/db_sqlite.dart';
 import 'package:cadastro/models/user.dart';
@@ -6,6 +8,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cnpj_cpf_helper/cnpj_cpf_helper.dart';
+import 'package:image_picker/image_picker.dart';
 import '../controllers/cepController.dart';
 
 class Cadastro extends StatefulWidget {
@@ -28,6 +31,7 @@ class _CadastroState extends State<Cadastro> {
   var _cidadeController = TextEditingController();
   var _ufController = TextEditingController();
   var _paisController = TextEditingController();
+  File file;
 
   @override
   void initState() {
@@ -107,6 +111,60 @@ class _CadastroState extends State<Cadastro> {
                     key: _formKey,
                     child: Column(
                       children: [
+                        CircleAvatar(
+                          radius: 90,
+                          backgroundColor: Colors.red.withOpacity(.3),
+                          child: GestureDetector(
+                            onTap: () async {
+                              var source = await showDialog<ImageSource>(
+                                context: context,
+                                barrierDismissible: false,
+                                child: AlertDialog(
+                                  title: Text('Escolha uma opção'),
+                                  actions: [
+                                    FlatButton(
+                                      child: Text('Galeria'),
+                                      onPressed: () {
+                                        Navigator.pop(
+                                            context, ImageSource.gallery);
+                                      },
+                                    ),
+                                    FlatButton(
+                                      child: Text('Camera'),
+                                      onPressed: () {
+                                        Navigator.pop(
+                                            context, ImageSource.camera);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              var picker = ImagePicker();
+                              var pickedFile =
+                                  await picker.getImage(source: source);
+
+                              if (pickedFile != null) {
+                                setState(() {
+                                  user.image = File(pickedFile.path);
+                                  file = File(pickedFile.path);
+                                });
+                              }
+                            },
+                            child: Hero(
+                              tag: user?.id?.toString() ?? '',
+                              child: CircleAvatar(
+                                radius: 80,
+                                backgroundImage: user.image != null
+                                    ? FileImage(user.image)
+                                    : AssetImage('assets/user02.jpg'),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
                         TextFormField(
                           initialValue: user?.name,
                           textInputAction: TextInputAction.send,
@@ -304,8 +362,7 @@ class _CadastroState extends State<Cadastro> {
                                   _cidadeController.text =
                                       user.cidade = end.localidade;
                                   _ufController.text = user.uf = end.uf;
-                                  _paisController.text =
-                                      user.endereco = 'Brasil';
+                                  _paisController.text = user.pais = 'Brasil';
                                 });
                               },
                             ),
