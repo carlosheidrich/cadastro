@@ -22,7 +22,7 @@ class User {
       this.document,
       this.email,
       this.age,
-      this.active = false,
+      this.active = true,
       this.cep,
       this.endereco,
       this.numero,
